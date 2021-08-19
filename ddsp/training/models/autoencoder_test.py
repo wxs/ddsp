@@ -37,7 +37,7 @@ class AutoencoderTest(parameterized.TestCase, tf.test.TestCase):
     self.n_frames = 1000
     self.n_samples = 64000
     inputs = {
-        'loudness_db': np.zeros([self.n_batch, self.n_frames]),
+        'power_db': np.zeros([self.n_batch, self.n_frames]),
         'f0_hz': np.zeros([self.n_batch, self.n_frames]),
         'audio': np.random.randn(self.n_batch, self.n_samples),
     }

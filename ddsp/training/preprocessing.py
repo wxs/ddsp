@@ -41,12 +41,27 @@ def at_least_3d(x):
 class F0LoudnessPreprocessor(nn.DictLayer):
   """Resamples and scales 'f0_hz' and 'loudness_db' features."""
 
-  def __init__(self, time_steps=1000, **kwargs):
+  def __init__(self,
+               time_steps=1000,
+               frame_rate=250,
+               sample_rate=16000,
+               recompute_loudness=True,
+               **kwargs):
     super().__init__(**kwargs)
     self.time_steps = time_steps
+    self.frame_rate = frame_rate
+    self.sample_rate = sample_rate
+    self.recompute_loudness = recompute_loudness
 
-  def call(self, loudness_db, f0_hz) -> [
+  def call(self, loudness_db, f0_hz, audio=None) -> [
       'f0_hz', 'loudness_db', 'f0_scaled', 'ld_scaled']:
+    # Compute loudness fresh (it's fast).
+    if self.recompute_loudness:
+      loudness_db = ddsp.spectral_ops.compute_loudness(
+          audio,
+          sample_rate=self.sample_rate,
+          frame_rate=self.frame_rate)
+
     # Resample features to the frame_rate.
     f0_hz = self.resample(f0_hz)
     loudness_db = self.resample(loudness_db)
